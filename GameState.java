@@ -1,4 +1,5 @@
 import java.awt.Point;
+import java.util.ArrayList;
 
 /*
 	 * This class represents a checkers board: the piece positions and state of the 
@@ -39,7 +40,7 @@ public class GameState {
 				     */
 	private boolean turn; // whose turn it is, use constants 'black' and 'red' for simplicity (instead of true, false)
 	private boolean jumpInProgress = false; // set to true when a piece jumps, so we know to stay on current players turn
-	private Point jumpingPiece = null; // set to the coordinates of the last piece that jumped, if that piece has no more jumps, we know to end the players turn
+	private Point jumpingPiece = new Point(-1, -1); // set to the coordinates of the last piece that jumped, if that piece has no more jumps, we know to end the players turn
 	
 	
 	// Constructor
@@ -50,10 +51,62 @@ public class GameState {
 	}
 
 	
-	// Function to get possible moves: the star of the show!
-	public Move[] getPossibleMoves(int x, int y){ // TODO
-		return null;
+	// Function to get possible moves: Given a piece, what are it's possible moves
+	public Move[] getPossibleMoves(Point coords){ 
+		ArrayList<Move> moves = new ArrayList<Move>();
+		
+		// conditions
+		/*
+		 * whose turn
+		 * color
+		 * own pieces blocking
+		 * other pieces blocking
+		 * 	 pieces blocking other pieces blocking
+		 * king or not
+		 * edge of board
+		 * */
+		
+		
+		/* Helpers: 
+		 * spaceOccupied, isKing
+		 */
+		
+		
+		return (Move[]) moves.toArray();
 	}
+	private boolean spaceOccupied(Point coord){
+		if(board[(int)coord.getX()][(int)coord.getY()] != 0){
+			return true;
+		}
+		else{
+			return false;
+		}
+	}
+	private boolean spaceOccupied(int x, int y){
+		if(board[x][y] != 0){
+			return true;
+		}
+		else{
+			return false;
+		}
+	}
+	private boolean isKing(Point coord){
+		if(board[(int)coord.getX()][(int)coord.getY()] == 2 || board[(int)coord.getX()][(int)coord.getY()] == -2){
+			return true;
+		}
+		else{
+			return false;
+		}
+	}
+	private boolean isKing(int x, int y){
+		if(board[x][y] == 2 || board[x][y] == -2){
+			return true;
+		}
+		else{
+			return false;
+		}
+	}
+	
 
 	
 	// Getters and setters
@@ -93,9 +146,28 @@ public class GameState {
 		this.turn = turn;
 	}
 	
-	public void changeTurn(){
+	public void flipTurn(){
 		this.turn = !this.turn;
 	}
+	public void flipJumpInProgress(){
+		this.jumpInProgress = !this.jumpInProgress;
+	}
+	public void setJumpInProgress(boolean j){
+		this.jumpInProgress = j;
+	}
+	public Point getJumpingPiece() {
+		return jumpingPiece;
+	}
+	public void setJumpingPiece(Point jumpingPiece) {
+		this.jumpingPiece.setLocation(jumpingPiece);
+	}
+	public void setJumpingPiece(int x, int y) {
+		this.jumpingPiece.setLocation(x, y);
+	}
+	
+	
+	
+	
 	
 	
 	

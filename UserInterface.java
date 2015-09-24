@@ -115,6 +115,9 @@ public class UserInterface extends JPanel implements MouseListener, ActionListen
 		int retX = (x - 50)/50;
 		int retY = (y - 40)/50;
 		Point ret = new Point(retX, retY);
+		if(x < 50 || y < 40){
+			ret.setLocation(-69, -69);
+		}
 		return ret;
 	}
 	public Point spaceToPixel(int x, int y){ //  returns top left corner of square
