@@ -1,5 +1,6 @@
-package org.ethan.checkersgame.ai;
+package org.ethan.checkersgame.ai.rando;
 
+import org.ethan.checkersgame.ai.AI;
 import org.ethan.checkersgame.logic.GameStateManager;
 import org.ethan.checkersgame.logic.Move;
 import org.ethan.checkersgame.logic.enums.PlayerColor;
@@ -13,13 +14,11 @@ import java.util.Random;
 import static org.ethan.checkersgame.logic.GameStateManager.BOARD_X_LENGTH;
 import static org.ethan.checkersgame.logic.GameStateManager.BOARD_Y_LENGTH;
 
-public class RandoAI implements AI
+public class RandoAI extends AI
 {
-    private final PlayerColor color;
-
     public RandoAI(PlayerColor color)
     {
-        this.color = color;
+        super(color);
     }
 
     @Override

@@ -21,11 +21,11 @@ public class GameStateManager
     private static int RED_KING_PROMO_Y_IDX = BOARD_Y_LENGTH - 1;
     private static int BLACK_KING_PROMO_Y_IDX = 0;
 
-    private static byte EMPTY_SPACE_REPR = 0;
-    private static byte BLACK_MAN_REPR = 1;
-    private static byte BLACK_KING_REPR = 2;
-    private static byte RED_MAN_REPR = -1;
-    private static byte RED_KING_REPR = -2;
+    public static byte EMPTY_SPACE_REPR = 0;
+    public static byte BLACK_MAN_REPR = 1;
+    public static byte BLACK_KING_REPR = 2;
+    public static byte RED_MAN_REPR = -1;
+    public static byte RED_KING_REPR = -2;
 
     private static Point NULL_POINT_COORDS = new Point(-1, -1);
 
@@ -55,8 +55,6 @@ public class GameStateManager
 
     private Point jumpingPieceCoords = new Point(NULL_POINT_COORDS);
 
-
-    // Constructor
     public GameStateManager()
     {
         this.board = new byte[BOARD_X_LENGTH][BOARD_Y_LENGTH];
@@ -67,9 +65,32 @@ public class GameStateManager
         this.resetBoard();
     }
 
+    public GameStateManager(GameStateManager orignalManager)
+    {
+        this.board = new byte[BOARD_X_LENGTH][BOARD_Y_LENGTH];
+
+        for ( int x = 0; x < BOARD_X_LENGTH; x++ )
+        {
+            for ( int y = 0; y < BOARD_Y_LENGTH; y++ )
+            {
+                this.board[x][y] = orignalManager.board[x][y];
+            }
+        }
+
+        this.turnColor = orignalManager.turnColor;
+        this.winColor = orignalManager.winColor;
+        this.isStatemate = orignalManager.isStatemate;
+        this.jumpingPieceCoords = new Point(orignalManager.jumpingPieceCoords);
+    }
+
     public PieceType getPieceType(Point pieceCoords)
     {
-        final byte rawPieceRepr = getPieceAt(pieceCoords);
+        return getPieceType(pieceCoords.x, pieceCoords.y);
+    }
+
+    public PieceType getPieceType(int x, int y)
+    {
+        final byte rawPieceRepr = getPieceAt(x, y);
 
         if ( rawPieceRepr == EMPTY_SPACE_REPR )
         {
@@ -232,6 +253,22 @@ public class GameStateManager
     private boolean isMoveAJump(Move move)
     {
         return Math.abs(move.getStartPos().x - move.getEndPos().x) == 2 && Math.abs(move.getStartPos().y - move.getEndPos().y) == 2;
+    }
+
+    public List<Move> getAllPossibleMoves()
+    {
+        ArrayList<Move> moves = new ArrayList<>();
+
+        for ( int x = 0; x < BOARD_X_LENGTH; x++ )
+        {
+            for ( int y = 0; y < BOARD_Y_LENGTH; y++ )
+            {
+                moves.addAll(getPossibleMoves(new Point(x, y)));
+
+            }
+        }
+
+        return moves;
     }
 
     // Function to get possible moves: Given a piece, what are it's possible moves

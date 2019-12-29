@@ -1,11 +1,13 @@
 package org.ethan.checkersgame.logic;
 
 import org.ethan.checkersgame.ai.AI;
-import org.ethan.checkersgame.ai.RandoAI;
+import org.ethan.checkersgame.ai.minimax.MiniMaxAI;
+import org.ethan.checkersgame.ai.rando.RandoAI;
 import org.ethan.checkersgame.logic.enums.PlayerColor;
 import org.ethan.checkersgame.viewcontrol.RepaintHandle;
 
 import java.awt.Point;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -31,7 +33,7 @@ public class GameController
 
 
         ///// TODO: set ai in ui
-        redAI = new RandoAI(PlayerColor.RED);
+        redAI = new MiniMaxAI(PlayerColor.RED);
 
 
         executeAI();
@@ -40,6 +42,16 @@ public class GameController
     public Point getCurrentSelectedPieceCoords()
     {
         return currentSelectedPieceCoords;
+    }
+
+    public List<Point> getCurrentSelectedPiecePossibleMoveEndCoords()
+    {
+        List<Point> moveEnds = new ArrayList<>();
+        for ( Move possibleMove : gameStateManager.getPossibleMoves(currentSelectedPieceCoords) )
+        {
+            moveEnds.add(possibleMove.getEndPos());
+        }
+        return moveEnds;
     }
 
     public boolean isAPieceCurrentlySelected()
@@ -51,6 +63,8 @@ public class GameController
     {
         if ( !isAHumansTurn() )
         {
+            // TODO: come up with a way to animate moves better
+
             Move aiMove = null;
             if ( gameStateManager.getTurnColor() == PlayerColor.RED )
             {
@@ -105,7 +119,7 @@ public class GameController
                     {
                         gameStateManager.makeMove(possibleMove);
                         repaintHandle.triggerRepaint();
-                        
+
                         executeAI();
                     }
                 }

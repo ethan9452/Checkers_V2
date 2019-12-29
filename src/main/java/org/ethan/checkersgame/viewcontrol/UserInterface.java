@@ -29,7 +29,6 @@ public class UserInterface extends JPanel implements MouseListener
         addMouseListener(this);
         setFocusable(true);
 
-
         controller = new GameController(new RepaintHandle(this));
 
         repaint();
@@ -75,6 +74,15 @@ public class UserInterface extends JPanel implements MouseListener
 
             g.setColor(Color.yellow);
             g.fillRect(selectedPiecePixels.x, selectedPiecePixels.y, 50, 50);
+
+            // paint possible moves
+            for ( Point moveEndCoord : controller.getCurrentSelectedPiecePossibleMoveEndCoords() )
+            {
+                final Point moveEndCoordPixels = spaceToPixel(moveEndCoord);
+                g.setColor(Color.green);
+                g.fillRect(moveEndCoordPixels.x, moveEndCoordPixels.y, 50, 50);
+
+            }
         }
     }
 
@@ -119,12 +127,10 @@ public class UserInterface extends JPanel implements MouseListener
 
     public void paintMessages(Graphics g)
     {
-//        g.fillRect(50, 40, 400, 400);
-
         g.setColor(Color.black);
         g.drawString(("Winner: " + controller.getWinColor()), 70, 500);
 
-        g.drawString(("Stalemate? " + controller.isStalemate()), 70, 530);
+        g.drawString(("Stalemate: " + controller.isStalemate()), 70, 530);
     }
 
     //// Mouse Input ////
