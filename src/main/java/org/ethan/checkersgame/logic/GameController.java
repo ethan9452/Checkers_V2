@@ -1,123 +1,147 @@
 package org.ethan.checkersgame.logic;
 
+import org.ethan.checkersgame.ai.AI;
+import org.ethan.checkersgame.ai.RandoAI;
+import org.ethan.checkersgame.logic.enums.PlayerColor;
+import org.ethan.checkersgame.viewcontrol.RepaintHandle;
+
 import java.awt.Point;
+import java.util.List;
 
 
 public class GameController
 {
-    GameStateManager gameStateManager;
-    boolean          blackAI = false;
-    boolean          redAI   = false;
+    private final RepaintHandle repaintHandle;
 
-    Point selectedPieceCoordinates = new Point( -1, -1 );
+    private final GameStateManager gameStateManager;
 
-    String message = ""; // message displayed to player
+    AI blackAI = null;
+    AI redAI = null;
+
+    private static Point UNSELECTED_POINT = new Point(-1, -1);
+    private Point currentSelectedPieceCoords = new Point(UNSELECTED_POINT);
+
 
     // Constructor
-    public GameController()
+    public GameController(RepaintHandle repaintHandle)
     {
+        this.repaintHandle = repaintHandle;
+
         this.gameStateManager = new GameStateManager();
+
+
+        ///// TODO: set ai in ui
+        redAI = new RandoAI(PlayerColor.RED);
+
+
+        executeAI();
     }
 
-
-    // Recieves the board space that the user clicked on (between [0,0] to [7,7]
-    // and acts accordingly
-    public void recieveClick(Point point)
+    public Point getCurrentSelectedPieceCoords()
     {
-        validateCoordinates( point );
+        return currentSelectedPieceCoords;
+    }
 
-        // if piece is not selected, and the color is the same as the turn, set that piece to be 'selected_piece'
-        if ( !point.equals( selectedPieceCoordinates ) &&
-                ((getBoard()[point.x][point.y] < 0) && gameStateManager.getTurn() == gameStateManager.red ||
-                        ((this.getBoard()[(int) point.getX()][(int) point.getY()] > 0) && this.gameStateManager.getTurn() == gameStateManager.black)) )
+    public boolean isAPieceCurrentlySelected()
+    {
+        return !currentSelectedPieceCoords.equals(UNSELECTED_POINT);
+    }
+
+    protected void executeAI()
+    {
+        if ( !isAHumansTurn() )
         {
-            selectedPieceCoordinates.setLocation( point );
+            Move aiMove = null;
+            if ( gameStateManager.getTurnColor() == PlayerColor.RED )
+            {
+                aiMove = redAI.chooseMove(gameStateManager);
+            }
+            else if ( gameStateManager.getTurnColor() == PlayerColor.BLACK )
+            {
+                aiMove = blackAI.chooseMove(gameStateManager);
+            }
+
+            gameStateManager.makeMove(aiMove);
+
+            repaintHandle.triggerRepaint();
+
+            executeAI();
+        }
+    }
+
+    public void recieveClick(Point clickedCoords)
+    {
+        if ( !isAHumansTurn() )
+        {
+            // If it is an AI's turn, don't recieve any clicks.
+            return;
         }
 
-        // if piece is selected, unselect
-        if ( point.equals( selectedPieceCoordinates ) )
-        {
-            selectedPieceCoordinates.setLocation( -1, -1 );
-        }
+        validateCoordinates(clickedCoords);
 
-        // if piece is selected and valid move is chosen, make the move
-        Move[] possible_moves = gameStateManager.getPossibleMoves( selectedPieceCoordinates ); // get all moves for the selected piece
-        for ( int i = 0; i < possible_moves.length; i++ )
-        { // loop thru all possible moves
-            if ( possible_moves[i].getEndPos().equals( point ) )
-            { // if clicked space matches valid move, make the move
-                makeMove( possible_moves[i] );
+        if ( currentSelectedPieceCoords.equals(UNSELECTED_POINT) )
+        {
+            if ( gameStateManager.getPlayerColor(clickedCoords) == gameStateManager.getTurnColor() )
+            {
+                currentSelectedPieceCoords.setLocation(clickedCoords);
             }
         }
+        else
+        {
+            if ( currentSelectedPieceCoords.equals(clickedCoords) )
+            {
+                currentSelectedPieceCoords.setLocation(UNSELECTED_POINT);
+            }
+            else if ( gameStateManager.getPlayerColor(clickedCoords) == gameStateManager.getTurnColor() )
+            {
+                currentSelectedPieceCoords.setLocation(clickedCoords);
+            }
+            else
+            {
+                List<Move> possibleMoves = gameStateManager.getPossibleMoves(currentSelectedPieceCoords);
+                for ( Move possibleMove : possibleMoves )
+                {
+                    if ( possibleMove.getEndPos().equals(clickedCoords) )
+                    {
+                        gameStateManager.makeMove(possibleMove);
+                        repaintHandle.triggerRepaint();
+                        
+                        executeAI();
+                    }
+                }
 
+                currentSelectedPieceCoords.setLocation(UNSELECTED_POINT);
+            }
+        }
+    }
 
+    private boolean isAHumansTurn()
+    {
+        if ( blackAI == null && gameStateManager.getTurnColor() == PlayerColor.BLACK )
+        {
+            return true;
+        }
+
+        if ( redAI == null && gameStateManager.getTurnColor() == PlayerColor.RED )
+        {
+            return true;
+        }
+
+        return false;
     }
 
     private void validateCoordinates(Point point)
     {
         if ( point.getX() < 0 || point.getX() > 7 || point.getY() < 0 || point.getY() > 7 )
         {
-            throw new IllegalArgumentException( "illegal coordinate" + point );
+            throw new IllegalArgumentException("illegal coordinate" + point);
         }
     }
 
-    // Given a move, alters the board accordingly
-    protected void makeMove(Move move)
-    {
-        int piece = getBoard()[(int) move.getStartPos().getX()][(int) move.getStartPos().getY()];
-        gameStateManager.setSpace( (int) move.getEndPos().getX(), (int) move.getEndPos().getY(), piece );
-        gameStateManager.setSpace( (int) move.getStartPos().getX(), (int) move.getStartPos().getY(), 0 );
-
-        // Check if move is a jump
-        if ( Math.abs( move.getEndPos().getX() - move.getStartPos().getX() ) == 2 )
-        {
-            // remove jumped piece
-            int jumpedX = (int) ((move.getEndPos().getX() + move.getStartPos().getX()) / 2);
-            int jumpedY = (int) ((move.getEndPos().getY() + move.getStartPos().getY()) / 2);
-            gameStateManager.setSpace( jumpedX, jumpedY, 0 );
-
-            gameStateManager.setJumpInProgress( true );
-            gameStateManager.setJumpingPiece( move.getEndPos() );
-
-            gameStateManager.flipTurn(); // If a piece is jumped, don't change turns, so we premtively undo the flip-turn that happens later.
-
-            // If the jumping piece has no more moves, jump is NO LONGER in progress
-            if ( gameStateManager.getPossibleMoves( gameStateManager.getJumpingPiece() ).length == 0 )
-            {
-                gameStateManager.setJumpInProgress( false );
-                gameStateManager.flipTurn(); // If jump is over, we need to change turns. (3 flips equals 1 flip)
-            }
-        }
-        gameStateManager.flipTurn();
-    }
-
-    // org.ethan.checkersgame.ai.AI methods
-    // If both are org.ethan.checkersgame.ai.AI, these 2 methods loop back and forth
-    // If not, the method ends, and we wait for mouse input from user
-    public void blackAI()
-    {  //TODO
-        // make some move
-        if ( redAI == true )
-        {
-            redAI();
-        }
-    }
-
-    public void redAI()
-    {  //TODO
-        //make some move
-        if ( blackAI == true )
-        {
-            blackAI();
-        }
-    }
-
-
-    public int[][] getBoard()
+    public byte[][] getBoard()
     {
         return gameStateManager.getBoard();
     }
-
 
     // Debug
     public void printBoard()
@@ -126,10 +150,19 @@ public class GameController
         {
             for ( int x = 0; x < 8; x++ )
             {
-                System.out.print( gameStateManager.getBoard()[x][y] );
+                System.out.print(gameStateManager.getBoard()[x][y]);
             }
             System.out.println();
         }
     }
 
+    public PlayerColor getWinColor()
+    {
+        return gameStateManager.getWinColor();
+    }
+
+    public boolean isStalemate()
+    {
+        return gameStateManager.isStatemate();
+    }
 }

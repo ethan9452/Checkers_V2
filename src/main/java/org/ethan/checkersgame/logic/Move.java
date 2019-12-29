@@ -8,23 +8,22 @@ import java.awt.Point;
 public class Move
 {
 
-    private Point start_pos; // position of the piece to be moved
-    private Point end_pos; // position the piece of interest ends at
+    private final Point startPos; // position of the piece to be moved
+    private final Point endPos; // position the piece of interest ends at
 
     public Move(Point start, Point end)
     {
-        start_pos = start;
-        end_pos = end;
+        startPos = start;
+        endPos = end;
     }
 
     public Point getStartPos()
     {
-        return start_pos;
+        return startPos;
     }
 
     public Point getEndPos()
     {
-        return end_pos;
+        return endPos;
     }
-
 }

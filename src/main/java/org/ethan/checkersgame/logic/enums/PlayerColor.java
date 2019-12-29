@@ -1,6 +1,6 @@
 package org.ethan.checkersgame.logic.enums;
 
-public enum Player
+public enum PlayerColor
 {
     RED,
     BLACK,
