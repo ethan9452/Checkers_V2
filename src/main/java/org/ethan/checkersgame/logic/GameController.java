@@ -2,7 +2,7 @@ package org.ethan.checkersgame.logic;
 
 import org.ethan.checkersgame.ai.AI;
 import org.ethan.checkersgame.ai.minimax.MiniMaxAI;
-import org.ethan.checkersgame.ai.rando.RandoAI;
+import org.ethan.checkersgame.ai.minimax.MiniMaxV2AI;
 import org.ethan.checkersgame.logic.enums.PlayerColor;
 import org.ethan.checkersgame.viewcontrol.RepaintHandle;
 
@@ -31,12 +31,14 @@ public class GameController
 
         this.gameStateManager = new GameStateManager();
 
+        repaintHandle.triggerImmediateRepaint();
 
         ///// TODO: set ai in ui
         redAI = new MiniMaxAI(PlayerColor.RED);
+        blackAI = new MiniMaxV2AI(PlayerColor.BLACK);
 
 
-        executeAI();
+//        executeAI();
     }
 
     public Point getCurrentSelectedPieceCoords()
@@ -77,7 +79,7 @@ public class GameController
 
             gameStateManager.makeMove(aiMove);
 
-            repaintHandle.triggerRepaint();
+            repaintHandle.triggerImmediateRepaint();
 
             executeAI();
         }
@@ -85,48 +87,52 @@ public class GameController
 
     public void recieveClick(Point clickedCoords)
     {
-        if ( !isAHumansTurn() )
-        {
-            // If it is an AI's turn, don't recieve any clicks.
-            return;
-        }
+//        if ( !isAHumansTurn() )
+//        {
+//            // If it is an AI's turn, don't recieve any clicks.
+//            return;
+//        }
+//
+//        validateCoordinates(clickedCoords);
+//
+//        if ( currentSelectedPieceCoords.equals(UNSELECTED_POINT) )
+//        {
+//            if ( gameStateManager.getPlayerColor(clickedCoords) == gameStateManager.getTurnColor() )
+//            {
+//                currentSelectedPieceCoords.setLocation(clickedCoords);
+//            }
+//        }
+//        else
+//        {
+//            if ( currentSelectedPieceCoords.equals(clickedCoords) )
+//            {
+//                currentSelectedPieceCoords.setLocation(UNSELECTED_POINT);
+//            }
+//            else if ( gameStateManager.getPlayerColor(clickedCoords) == gameStateManager.getTurnColor() )
+//            {
+//                currentSelectedPieceCoords.setLocation(clickedCoords);
+//            }
+//            else
+//            {
+//                List<Move> possibleMoves = gameStateManager.getPossibleMoves(currentSelectedPieceCoords);
+//                for ( Move possibleMove : possibleMoves )
+//                {
+//                    if ( possibleMove.getEndPos().equals(clickedCoords) )
+//                    {
+//                        gameStateManager.makeMove(possibleMove);
+//                        repaintHandle.triggerImmediateRepaint();
+//
+//                        executeAI();
+//                    }
+//                }
+//
+//                currentSelectedPieceCoords.setLocation(UNSELECTED_POINT);
+//            }
+//        }
 
-        validateCoordinates(clickedCoords);
 
-        if ( currentSelectedPieceCoords.equals(UNSELECTED_POINT) )
-        {
-            if ( gameStateManager.getPlayerColor(clickedCoords) == gameStateManager.getTurnColor() )
-            {
-                currentSelectedPieceCoords.setLocation(clickedCoords);
-            }
-        }
-        else
-        {
-            if ( currentSelectedPieceCoords.equals(clickedCoords) )
-            {
-                currentSelectedPieceCoords.setLocation(UNSELECTED_POINT);
-            }
-            else if ( gameStateManager.getPlayerColor(clickedCoords) == gameStateManager.getTurnColor() )
-            {
-                currentSelectedPieceCoords.setLocation(clickedCoords);
-            }
-            else
-            {
-                List<Move> possibleMoves = gameStateManager.getPossibleMoves(currentSelectedPieceCoords);
-                for ( Move possibleMove : possibleMoves )
-                {
-                    if ( possibleMove.getEndPos().equals(clickedCoords) )
-                    {
-                        gameStateManager.makeMove(possibleMove);
-                        repaintHandle.triggerRepaint();
 
-                        executeAI();
-                    }
-                }
-
-                currentSelectedPieceCoords.setLocation(UNSELECTED_POINT);
-            }
-        }
+executeAI();
     }
 
     private boolean isAHumansTurn()
@@ -178,5 +184,10 @@ public class GameController
     public boolean isStalemate()
     {
         return gameStateManager.isStatemate();
+    }
+
+    public int getTurnNumber()
+    {
+        return gameStateManager.getTurnNumber();
     }
 }

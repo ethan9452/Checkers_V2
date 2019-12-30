@@ -1,0 +1,89 @@
+Goals
+- support human-human, human-ai, and ai-ai play
+- animate movements
+
+============================================================
+current human human:
+- clicks
+- makes move
+- repaint (which is done in a diff thread, somewhat cannot control)
+-> repeat
+
+
+============================================================
+current human-ai:
+- click
+- make move
+- repaint
+- AI computes move (potentially time intensive)
+- AI does move
+- repaint
+
+in reality, it looks like
+- click
+- pause (while AI computes move)
+- my piece and AI pice moves at same time
+
+
+============================================================
+Note on Event Handler and Swing implementation
+
+Events (click)
+- based on experiment, it seems like click events are processed on the same thread
+    - not one thread per callback like i thought
+
+
+
+============================================================
+Effect of alpha beta pruning
+
+=== Without: to turn 47
+nodes traversed: 1574387
+nodes traversed: 217993
+nodes traversed: 1788787
+nodes traversed: 278634
+nodes traversed: 1834290
+nodes traversed: 227910
+nodes traversed: 2423387
+nodes traversed: 432464
+nodes traversed: 1989692
+nodes traversed: 142950
+nodes traversed: 1426412
+nodes traversed: 232119
+nodes traversed: 1247604
+nodes traversed: 133820
+nodes traversed: 667197
+nodes traversed: 34845
+nodes traversed: 279157
+nodes traversed: 73615
+nodes traversed: 253420
+nodes traversed: 33669
+nodes traversed: 225967
+nodes traversed: 43919
+nodes traversed: 167812
+nodes traversed: 58072
+nodes traversed: 139796
+nodes traversed: 33823
+nodes traversed: 98690
+nodes traversed: 16920
+nodes traversed: 170093
+nodes traversed: 14247
+nodes traversed: 159727
+nodes traversed: 14733
+nodes traversed: 106131
+nodes traversed: 11945
+nodes traversed: 159840
+nodes traversed: 27069
+nodes traversed: 316700
+nodes traversed: 33667
+nodes traversed: 249365
+nodes traversed: 20036
+nodes traversed: 27075
+nodes traversed: 4409
+nodes traversed: 50490
+nodes traversed: 42621
+nodes traversed: 42621
+nodes traversed: 52965
+nodes traversed: 3971538
+
+With

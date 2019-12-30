@@ -4,4 +4,6 @@ public class FeaturesList
 {
     public static boolean DO_DEBUG_VALIDATIONS = false;
     public static boolean DEBUG_PRINT_LINES = false;
+    public static boolean ALPHA_BETA_PRUNING = true;
+
 }

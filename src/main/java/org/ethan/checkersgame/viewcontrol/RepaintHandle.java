@@ -9,8 +9,8 @@ public class RepaintHandle
         this.ui = ui;
     }
 
-    public void triggerRepaint()
+    public void triggerImmediateRepaint()
     {
-        ui.repaint();
+        ui.paintImmediately(ui.getBounds());
     }
 }

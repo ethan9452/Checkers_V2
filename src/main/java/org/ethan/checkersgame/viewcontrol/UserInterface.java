@@ -130,7 +130,9 @@ public class UserInterface extends JPanel implements MouseListener
         g.setColor(Color.black);
         g.drawString(("Winner: " + controller.getWinColor()), 70, 500);
 
-        g.drawString(("Stalemate: " + controller.isStalemate()), 70, 530);
+        g.drawString(("Stalemate: " + controller.isStalemate()), 70, 520);
+
+        g.drawString(("Turn number: " + controller.getTurnNumber()), 70, 540);
     }
 
     //// Mouse Input ////

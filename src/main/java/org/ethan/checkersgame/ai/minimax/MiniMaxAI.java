@@ -6,15 +6,17 @@ import org.ethan.checkersgame.logic.Move;
 import org.ethan.checkersgame.logic.enums.PieceType;
 import org.ethan.checkersgame.logic.enums.PlayerColor;
 
+import static org.ethan.checkersgame.features.FeaturesList.ALPHA_BETA_PRUNING;
+
 public class MiniMaxAI extends AI
 {
-    private final int depth;
+    protected int depth;
 
     public MiniMaxAI(PlayerColor color)
     {
         super(color);
 
-        depth = 6;
+        depth = 6; // set to 6
     }
 
     @Override
@@ -22,7 +24,9 @@ public class MiniMaxAI extends AI
     {
         GameStateManager initialState = new GameStateManager(stateManager);
 
-        MiniMaxRetVal minimaxResult = miniMaxRecurse(initialState, depth, aiColor);
+        MiniMaxRetVal minimaxResult = miniMaxRecurse(initialState, depth, aiColor, Double.MIN_VALUE, Double.MAX_VALUE);
+
+        System.out.println("nodes traversed: " + minimaxResult.getNumNodesTraversedForDebug());
 
         return minimaxResult.getMove();
     }
@@ -33,27 +37,44 @@ public class MiniMaxAI extends AI
      * @param gameState
      * @param remainingDepth
      * @param colorOfTurn
-     * @return
+     * @param currentMaximizingBest current "best" score for maximizing player (alpha)
+     * @param currentMinimizingBest current "best" score for minimizing player (beta)
+     * @return The idea of currentMaximizingBest currentMinimizingBest pruning is that the maximizing player won't choose a node lower than it's current best,
+     * and vice verse for the minimizing player
+     * <p>
+     * For example:
+     * - we are at a minimizing node and our current min is 4
+     * - the parent passes in currentMaximizingBest of 5
+     * - this means that the parent WILL NOT choose the path of this node
+     * - at this point we can stop computing
      */
-    private MiniMaxRetVal miniMaxRecurse(GameStateManager gameState, int remainingDepth, PlayerColor colorOfTurn)
+    private MiniMaxRetVal miniMaxRecurse(GameStateManager gameState, int remainingDepth, PlayerColor colorOfTurn, double currentMaximizingBest, double currentMinimizingBest)
     {
         if ( remainingDepth == 0 || gameState.isStatemate() || gameState.getWinColor() != PlayerColor.NONE )
         {
-            return new MiniMaxRetVal(getRewardAssociatedWithState(gameState), null);
+            return new MiniMaxRetVal(getRewardAssociatedWithState(gameState), null, 1);
         }
 
         final boolean isMaximizing = colorOfTurn == aiColor;
 
-        int curBestReward = isMaximizing ? Integer.MIN_VALUE : Integer.MAX_VALUE;
+        double curBestReward = isMaximizing ? Integer.MIN_VALUE : Integer.MAX_VALUE;
         Move curBestMove = null;
+
+        int numNodesTraversedForDebug = 0;
 
         for ( Move possibleMove : gameState.getAllPossibleMoves() )
         {
             GameStateManager childState = new GameStateManager(gameState);
             childState.makeMove(possibleMove);
 
-            final MiniMaxRetVal miniMaxRetVal = miniMaxRecurse(childState, remainingDepth - 1, getOppositeColor(colorOfTurn));
-            final int reward = miniMaxRetVal.getReward();
+            final MiniMaxRetVal miniMaxRetVal = miniMaxRecurse(childState,
+                    remainingDepth - 1,
+                    getOppositeColor(colorOfTurn),
+                    currentMaximizingBest,
+                    currentMinimizingBest);
+            final double reward = miniMaxRetVal.getReward();
+
+            numNodesTraversedForDebug += miniMaxRetVal.getNumNodesTraversedForDebug();
 
             if ( isMaximizing )
             {
@@ -61,6 +82,17 @@ public class MiniMaxAI extends AI
                 {
                     curBestReward = reward;
                     curBestMove = possibleMove;
+
+                    currentMaximizingBest = Math.max(currentMaximizingBest, curBestReward);
+
+                    if ( ALPHA_BETA_PRUNING )
+                    {
+                        // at this point, the parent MINIMIZING node will never pick this node
+                        if ( currentMaximizingBest >= currentMinimizingBest )
+                        {
+                            break;
+                        }
+                    }
                 }
             }
             else
@@ -69,11 +101,24 @@ public class MiniMaxAI extends AI
                 {
                     curBestReward = reward;
                     curBestMove = possibleMove;
+
+                    currentMinimizingBest = Math.min(currentMinimizingBest, curBestReward);
+
+                    if ( ALPHA_BETA_PRUNING )
+                    {
+                        // at this point, the parent MAXIMIZING node will never pick this node
+                        if ( currentMaximizingBest >= currentMinimizingBest )
+                        {
+                            break;
+                        }
+                    }
                 }
             }
+
+
         }
 
-        return new MiniMaxRetVal(curBestReward, curBestMove);
+        return new MiniMaxRetVal(curBestReward, curBestMove, numNodesTraversedForDebug);
     }
 
     private PlayerColor getOppositeColor(PlayerColor color)
@@ -92,7 +137,7 @@ public class MiniMaxAI extends AI
         }
     }
 
-    private int getRewardAssociatedWithState(GameStateManager stateManager)
+    protected double getRewardAssociatedWithState(GameStateManager stateManager)
     {
         int reward = 0;
 

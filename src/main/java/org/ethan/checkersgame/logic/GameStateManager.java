@@ -55,12 +55,15 @@ public class GameStateManager
 
     private Point jumpingPieceCoords = new Point(NULL_POINT_COORDS);
 
+    private int turnNumber;
+
     public GameStateManager()
     {
         this.board = new byte[BOARD_X_LENGTH][BOARD_Y_LENGTH];
         this.turnColor = PlayerColor.BLACK;
         this.winColor = PlayerColor.NONE;
         isStatemate = false;
+        turnNumber = 0;
 
         this.resetBoard();
     }
@@ -81,6 +84,7 @@ public class GameStateManager
         this.winColor = orignalManager.winColor;
         this.isStatemate = orignalManager.isStatemate;
         this.jumpingPieceCoords = new Point(orignalManager.jumpingPieceCoords);
+        this.turnNumber = orignalManager.turnNumber;
     }
 
     public PieceType getPieceType(Point pieceCoords)
@@ -224,6 +228,8 @@ public class GameStateManager
                 }
             }
         }
+
+        turnNumber++;
     }
 
     private Point getMidpoint(Point a, Point b)
@@ -302,16 +308,6 @@ public class GameStateManager
             {
                 maybeAddPossibleStepMove(pieceCoords, possibleMoveVector, moves);
             }
-        }
-
-        if ( DEBUG_PRINT_LINES )
-        {
-            System.out.print("possible moves: ");
-            for ( Move move : moves )
-            {
-                System.out.print(" | " + move.getStartPos().x + ", " + move.getStartPos().y + " -> " + move.getEndPos().x + ", " + move.getEndPos().y);
-            }
-            System.out.println();
         }
 
         return moves;
@@ -472,5 +468,10 @@ public class GameStateManager
     public boolean isStatemate()
     {
         return isStatemate;
+    }
+
+    public int getTurnNumber()
+    {
+        return turnNumber;
     }
 }
