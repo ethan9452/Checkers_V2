@@ -3,6 +3,8 @@ package org.ethan.checkersgame.logic;
 import org.ethan.checkersgame.ai.AI;
 import org.ethan.checkersgame.ai.minimax.MiniMaxAI;
 import org.ethan.checkersgame.ai.minimax.MiniMaxV2AI;
+import org.ethan.checkersgame.ai.minimax.MiniMaxV3AI;
+import org.ethan.checkersgame.ai.rando.RandoAI;
 import org.ethan.checkersgame.logic.enums.PlayerColor;
 import org.ethan.checkersgame.viewcontrol.RepaintHandle;
 
@@ -34,8 +36,8 @@ public class GameController
         repaintHandle.triggerImmediateRepaint();
 
         ///// TODO: set ai in ui
-        redAI = new MiniMaxAI(PlayerColor.RED);
-        blackAI = new MiniMaxV2AI(PlayerColor.BLACK);
+        redAI = new MiniMaxV3AI(PlayerColor.RED);
+        blackAI = new MiniMaxV3AI(PlayerColor.BLACK);
 
 
 //        executeAI();
@@ -131,8 +133,7 @@ public class GameController
 //        }
 
 
-
-executeAI();
+        executeAI();
     }
 
     private boolean isAHumansTurn()

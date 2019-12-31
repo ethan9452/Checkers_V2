@@ -5,9 +5,9 @@ import org.ethan.checkersgame.logic.enums.PlayerColor;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
-import static org.ethan.checkersgame.features.FeaturesList.DEBUG_PRINT_LINES;
 import static org.ethan.checkersgame.features.FeaturesList.DO_DEBUG_VALIDATIONS;
 
 
@@ -474,4 +474,5 @@ public class GameStateManager
     {
         return turnNumber;
     }
+
 }

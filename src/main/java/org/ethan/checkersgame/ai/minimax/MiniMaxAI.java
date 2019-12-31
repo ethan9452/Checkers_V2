@@ -24,9 +24,14 @@ public class MiniMaxAI extends AI
     {
         GameStateManager initialState = new GameStateManager(stateManager);
 
+        final long startTimeMs = System.currentTimeMillis();
         MiniMaxRetVal minimaxResult = miniMaxRecurse(initialState, depth, aiColor, Double.MIN_VALUE, Double.MAX_VALUE);
+        final long endTimeMs = System.currentTimeMillis();
 
-        System.out.println("nodes traversed: " + minimaxResult.getNumNodesTraversedForDebug());
+        System.out.println(aiColor + " " + this.getClass().getSimpleName() +
+                " nodes traversed: " +
+                minimaxResult.getNumNodesTraversedForDebug() +
+                " in " + (endTimeMs - startTimeMs) + "ms " );
 
         return minimaxResult.getMove();
     }
@@ -48,7 +53,7 @@ public class MiniMaxAI extends AI
      * - this means that the parent WILL NOT choose the path of this node
      * - at this point we can stop computing
      */
-    private MiniMaxRetVal miniMaxRecurse(GameStateManager gameState, int remainingDepth, PlayerColor colorOfTurn, double currentMaximizingBest, double currentMinimizingBest)
+    protected MiniMaxRetVal miniMaxRecurse(GameStateManager gameState, int remainingDepth, PlayerColor colorOfTurn, double currentMaximizingBest, double currentMinimizingBest)
     {
         if ( remainingDepth == 0 || gameState.isStatemate() || gameState.getWinColor() != PlayerColor.NONE )
         {
@@ -121,7 +126,7 @@ public class MiniMaxAI extends AI
         return new MiniMaxRetVal(curBestReward, curBestMove, numNodesTraversedForDebug);
     }
 
-    private PlayerColor getOppositeColor(PlayerColor color)
+    protected PlayerColor getOppositeColor(PlayerColor color)
     {
         if ( color == PlayerColor.RED )
         {

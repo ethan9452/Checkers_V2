@@ -19,7 +19,7 @@ public class MiniMaxV2AI extends MiniMaxAI
     {
         super(color);
 
-        depth = 7;
+        depth = 9;
     }
 
     protected double getRewardAssociatedWithState(GameStateManager stateManager)
